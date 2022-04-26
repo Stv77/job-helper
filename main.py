@@ -5,14 +5,16 @@ import re
 import time
 import nltk
 from nltk.corpus import stopwords
-from selenium import webdriver
 import requests
 import wget
 import zipfile
 import os
 import requests
 from requests_html import HTMLSession
-
+from webdriver import driver
+from webdriver import destination_extract
+import asyncio
+from selenium.common.exceptions import NoSuchElementException
 
 id_stopwords = stopwords.words('indonesian')
 en_stopwords = stopwords.words('english')
@@ -36,20 +38,12 @@ def extract_webdriver(extract_location):
     with open('webdriverInstalled.txt', 'w') as w:
         w.write('The webdriver has been installed.')
 
-
-destination_extract = r'.\Lib\site-packages\selenium\webdriver\chrome'
-
 #checking the existence of webdriver & download nltk stopwrods 1st time
 if(os.path.isfile('webdriverInstalled.txt')):
     print("Webdriver has been installed!")
 else:
     extract_webdriver(destination_extract)
     nltk.download("stopwords")
-
-#driver
-options = webdriver.ChromeOptions()
-options.add_argument(open("dumping_ground.txt", "r").read())
-driver = webdriver.Chrome(executable_path=destination_extract+ r"\chromedriver.exe", chrome_options=options)
 
 def link(url):
     session = HTMLSession()
@@ -101,6 +95,97 @@ def get_links(driver):
         with open('list_of_links.txt','w') as l:
             for items in final_lists:
                 l.write('%s\n' % items)
+
+
+#Checking the existence of lists
+if(os.path.isfile('list_of_links.txt')):
+    print("The lists are ready!")
+else:
+    get_links(driver=driver)
+
+with open('list_of_links.txt','r') as l:
+    links = l.readlines()
+with open('yours.txt', 'r') as p:
+    private = p.readlines()
+
+async def main(num):
+    for x in range(num):
+        driver.maximize_window()
+        driver.get(links[x])
+        time.sleep(3)
+
+        await asyncio.sleep(0.5)
+        get_requirements()
+        await asyncio.sleep(0.5)
+
+        list_of_requirements = get_requirements().split(".")
+        dump_txt(requirement_lists=list_of_requirements)
+        apply()
+        time.sleep(10)
+        remove_txt()
+
+def get_requirements():
+    temp_c = ""
+    requirements = driver.find_elements_by_css_selector("ul > li")
+    for y in requirements:
+        temp_c+=y.text.lower()
+    return temp_c
+
+def login():
+    masuk = driver.find_element_by_css_selector("a.sx2jih0.sx2jihf.uf80sq3")
+    masuk.click()
+    time.sleep(3)
+    user = driver.find_element_by_id("login_id")
+    user.click()
+    user.send_keys(private[0])
+    pwd = driver.find_element_by_id('password')
+    pwd.click()
+    pwd.send_keys(private[1])
+    try:
+        log = driver.find_element_by_css_selector("button.btn.btn-primary")
+        log.click()
+    except NoSuchElementException:
+        print("Little error")
+        
+
+def get_job_position():
+    position = driver.find_element_by_css_selector('h4.position-title')
+    return position
+
+def get_company_name():
+    the_company_name = driver.find_element_by_id('company_name')
+    return the_company_name
+
+def apply():
+    apply = driver.find_element_by_css_selector("div.sx2jih0.zcydq8fu > a")
+    apply.click()
+
+    write = driver.find_element_by_css_selector("textarea.form-control")
+    write.click()
+
+def dump_txt(requirement_lists):
+    if(os.path.isfile('details.txt')):
+        rewrite = open("details.txt", "w")
+        for x in range(len(requirement_lists)):
+            rewrite.write('%s\n' % requirement_lists[x])
+    else:
+        with open("details.txt", "w") as f:
+            rewrite = open("details.txt", "w")
+            for x in range(len(requirement_lists)):
+                rewrite.write('%s\n' % requirement_lists[x])
+
+def remove_txt():
+    clear = open("details.txt", "r+")
+    clear.truncate()
+
+def call_use_links():
+    driver.maximize_window()
+    driver.get(links[0])
+    login()
+    loop = asyncio.get_event_loop()
+    task = [loop.create_task(main(len(links)))]
+    loop.run_until_complete(asyncio.wait(task))
+    loop.close()
     driver.quit()
 
-get_links(driver=driver)
+call_use_links()
