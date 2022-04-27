@@ -115,14 +115,16 @@ async def main(num):
         time.sleep(3)
 
         await asyncio.sleep(0.5)
+        get_company_name()
+        get_job_position()
         get_requirements()
         await asyncio.sleep(0.5)
 
         list_of_requirements = get_requirements().split(".")
         dump_txt(requirement_lists=list_of_requirements)
         apply()
-        time.sleep(10)
-        remove_txt()
+        time.sleep(600)
+        # remove_txt()
 
 def get_requirements():
     temp_c = ""
@@ -149,11 +151,11 @@ def login():
         
 
 def get_job_position():
-    position = driver.find_element_by_css_selector('h4.position-title')
+    position = driver.find_element_by_css_selector('h1.sx2jih0._18qlyvc0').text
     return position
 
 def get_company_name():
-    the_company_name = driver.find_element_by_id('company_name')
+    the_company_name = driver.find_element_by_xpath('//*[@id="contentContainer"]/div/div[1]/div[1]/div[1]/div/div/div[1]/div/div/div[2]/div/div/div/div[2]/span').text
     return the_company_name
 
 def apply():
@@ -166,13 +168,22 @@ def apply():
 def dump_txt(requirement_lists):
     if(os.path.isfile('details.txt')):
         rewrite = open("details.txt", "w")
+        rewrite.write('%s ' % get_company_name())
+        rewrite.write(': %s' % get_job_position())
         for x in range(len(requirement_lists)):
-            rewrite.write('%s\n' % requirement_lists[x])
+            if x == 0:
+                rewrite.write('\n\t%s\n' % requirement_lists[x])
+            elif x > 0:
+                rewrite.write('\t%s\n' % requirement_lists[x])
     else:
-        with open("details.txt", "w") as f:
-            rewrite = open("details.txt", "w")
+        with open("details.txt", "w") as rewrite:
+            rewrite.write('%s ' % get_company_name())
+            rewrite.write(': %s' % get_job_position)
             for x in range(len(requirement_lists)):
-                rewrite.write('%s\n' % requirement_lists[x])
+                if x == 0:
+                    rewrite.write('\n\t%s\n' % requirement_lists[x])
+                elif x > 0:
+                    rewrite.write('\t%s\n' % requirement_lists[x])
 
 def remove_txt():
     clear = open("details.txt", "r+")
