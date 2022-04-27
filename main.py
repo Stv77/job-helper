@@ -3,6 +3,7 @@ from hashlib import new
 from msilib.schema import Error
 import re
 import time
+from turtle import pos
 import nltk
 from nltk.corpus import stopwords
 import requests
@@ -119,12 +120,18 @@ async def main(num):
         get_job_position()
         get_requirements()
         await asyncio.sleep(0.5)
-
+        #Temporary storing
         list_of_requirements = get_requirements().split(".")
-        dump_txt(requirement_lists=list_of_requirements)
+        dump_txt(requirement_lists=list_of_requirements, name="temporary.txt", determiner="w")
+        #Permanent storing
+        dump_txt(requirement_lists=list_of_requirements, name="permanent.txt", determiner="a")
+        #Apply
         apply()
-        time.sleep(600)
-        # remove_txt()
+        wait_or_go = str(input("wait or go?: "))
+        if wait_or_go == "wait":
+            time.sleep(300)
+        elif wait_or_go == "go":
+            print("Ok!")
 
 def get_requirements():
     temp_c = ""
@@ -148,7 +155,6 @@ def login():
         log.click()
     except NoSuchElementException:
         print("Little error")
-        
 
 def get_job_position():
     position = driver.find_element_by_css_selector('h1.sx2jih0._18qlyvc0').text
@@ -165,25 +171,15 @@ def apply():
     write = driver.find_element_by_css_selector("textarea.form-control")
     write.click()
 
-def dump_txt(requirement_lists):
-    if(os.path.isfile('details.txt')):
-        rewrite = open("details.txt", "w")
-        rewrite.write('%s ' % get_company_name())
-        rewrite.write(': %s' % get_job_position())
+def dump_txt(requirement_lists, determiner, name):
+    with open(name, determiner) as writing:
+        writing.write('%s ' % get_company_name())
+        writing.write(': %s' % get_job_position())
         for x in range(len(requirement_lists)):
             if x == 0:
-                rewrite.write('\n\t%s\n' % requirement_lists[x])
+                writing.write('\n\t%s\n' % requirement_lists[x])
             elif x > 0:
-                rewrite.write('\t%s\n' % requirement_lists[x])
-    else:
-        with open("details.txt", "w") as rewrite:
-            rewrite.write('%s ' % get_company_name())
-            rewrite.write(': %s' % get_job_position)
-            for x in range(len(requirement_lists)):
-                if x == 0:
-                    rewrite.write('\n\t%s\n' % requirement_lists[x])
-                elif x > 0:
-                    rewrite.write('\t%s\n' % requirement_lists[x])
+                writing.write('\t%s\n' % requirement_lists[x])
 
 def remove_txt():
     clear = open("details.txt", "r+")
