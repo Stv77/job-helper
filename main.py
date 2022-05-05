@@ -35,7 +35,6 @@ if(os.path.isfile('webdriverInstalled.txt')):
     print("Webdriver has been installed!")
 else:
     extract_webdriver(destination_extract)
-    nltk.download("stopwords")
 
 def link(url):
     session = HTMLSession()
