@@ -1,11 +1,5 @@
-from errno import ENOENT
-from hashlib import new
-from msilib.schema import Error
 import re
 import time
-from turtle import pos
-import nltk
-from nltk.corpus import stopwords
 import requests
 import wget
 import zipfile
