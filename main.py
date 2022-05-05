@@ -11,9 +11,6 @@ from webdriver import destination_extract
 import asyncio
 from selenium.common.exceptions import NoSuchElementException
 
-id_stopwords = stopwords.words('indonesian')
-en_stopwords = stopwords.words('english')
-
 def extract_webdriver(extract_location):
     url = 'https://chromedriver.storage.googleapis.com/LATEST_RELEASE'
     response = requests.get(url)
