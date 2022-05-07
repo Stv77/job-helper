@@ -47,9 +47,9 @@ def link(url):
     new_links = re.compile("https://www.jobstreet.co.id/id/job/\w.+")
     return new_links.findall(storing)
 
-def get_links(driver):
+def get_links(driver, the_job):
     #Open the page to get the biggest page number
-    main_link = 'https://www.jobstreet.co.id/id/job-search/staff-notaris-jobs/'
+    main_link = 'https://www.jobstreet.co.id/id/job-search/'+ the_job +'-jobs/'
     driver.maximize_window()
     driver.get(main_link)
 
@@ -92,7 +92,7 @@ def get_links(driver):
 if(os.path.isfile('list_of_links.txt')):
     print("The lists are ready!")
 else:
-    get_links(driver=driver)
+    get_links(driver=driver, the_job=str(input("Looking for what job? ")))
 
 with open('list_of_links.txt','r') as l:
     links = l.readlines()
@@ -160,6 +160,16 @@ def apply():
 
     write = driver.find_element_by_css_selector("textarea.form-control")
     write.click()
+    write.send_keys("Saya telah menempuh pendidikan S2 Magister Kenotariatan dan memiliki pengetahuan di bidang perjanjian, kontrak, dan juga perizinan di bidang korporat. Selain itu, saya juga telah lulus dalam ujian anggota luar biasa INI dan PERADI, telah mengikuti pelatihan bantuan hukum, dan pengalaman lain.")
+    send = driver.find_element_by_css_selector("button.btn.btn-primary")
+    send.click()
+    try:
+        missing_role = driver.find_element_by_css_selector("p.rolerequirement_missing_warning.error-text").text
+        missing_role_text = "Silakan menyelesaikan semua pertanyaan sebelum melamar pekerjaan ini."
+        if missing_role == missing_role_text:
+            time.sleep(10)
+    except NoSuchElementException:
+        print("The job has been applied!")
 
 def dump_txt(requirement_lists, determiner, name):
     with open(name, determiner) as writing:
