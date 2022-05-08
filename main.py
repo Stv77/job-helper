@@ -163,6 +163,8 @@ def apply():
     write.send_keys("Saya telah menempuh pendidikan S2 Magister Kenotariatan dan memiliki pengetahuan di bidang perjanjian, kontrak, dan juga perizinan di bidang korporat. Selain itu, saya juga telah lulus dalam ujian anggota luar biasa INI dan PERADI, telah mengikuti pelatihan bantuan hukum, dan pengalaman lain.")
     send = driver.find_element_by_css_selector("button.btn.btn-primary")
     send.click()
+    
+    #Error must complete
     try:
         missing_role = driver.find_element_by_css_selector("p.rolerequirement_missing_warning.error-text").text
         missing_role_text = "Silakan menyelesaikan semua pertanyaan sebelum melamar pekerjaan ini."
